@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import time
 import os
+import matplotlib.pyplot as plt
 from streamlit_autorefresh import st_autorefresh
 
 # =========================
@@ -170,11 +171,34 @@ with open(CSV_FILE, "rb") as f:
     )
 
 # =========================
-# GRAPH
+# GRAPH — matplotlib (replaces st.line_chart to avoid altair/Python 3.14 bug)
 # =========================
 st.subheader("📈 Energy & Cost Trends")
 
 if len(df) > 0:
-    chart_data = df.set_index("Session")[["Energy (kWh)", "Cost (₦)"]]
-    st.line_chart(chart_data)
+    fig, ax1 = plt.subplots(figsize=(10, 4))
+
+    color_energy = "#00c8ff"
+    color_cost = "#ff6b6b"
+
+    ax1.set_xlabel("Session")
+    ax1.set_ylabel("Energy (kWh)", color=color_energy)
+    ax1.plot(df["Session"], df["Energy (kWh)"], marker="o", color=color_energy, label="Energy (kWh)")
+    ax1.tick_params(axis="y", labelcolor=color_energy)
+    ax1.set_xticks(df["Session"])
+
+    ax2 = ax1.twinx()
+    ax2.set_ylabel("Cost (₦)", color=color_cost)
+    ax2.plot(df["Session"], df["Cost (₦)"], marker="s", linestyle="--", color=color_cost, label="Cost (₦)")
+    ax2.tick_params(axis="y", labelcolor=color_cost)
+
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2, loc="upper left")
+
+    fig.patch.set_alpha(0)
+    ax1.set_facecolor("#0e1117")
+    plt.tight_layout()
+    st.pyplot(fig)
+    plt.close(fig)
     
