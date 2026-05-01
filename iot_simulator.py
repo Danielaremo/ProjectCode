@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import time
 import os
-import matplotlib.pyplot as plt
 from streamlit_autorefresh import st_autorefresh
 
 # =========================
@@ -176,10 +175,6 @@ with open(CSV_FILE, "rb") as f:
 st.subheader("📈 Energy & Cost Trends")
 
 if len(df) > 0:
-    fig, ax = plt.subplots()
-    ax.plot(df["Session"], df["Energy (kWh)"], marker="o", label="Energy")
-    ax.plot(df["Session"], df["Cost (₦)"], marker="o", label="Cost")
-    ax.set_xlabel("Session")
-    ax.legend()
-    st.pyplot(fig)
+    chart_data = df.set_index("Session")[["Energy (kWh)", "Cost (₦)"]]
+    st.line_chart(chart_data)
     
